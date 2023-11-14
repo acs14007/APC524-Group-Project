@@ -1,5 +1,8 @@
 # APC524-Group-Project
 
+## Implementing Navier-Stokes Solver and Physics Informed Neural Network for Simulating Two-Dimensional Fluid Flow Around a Cylinder
+### Fairuz Ishraque, Joseph Lockwood, and Aaron Spaulding
+
 Cylinder wake flow is an incredibly relevant problem in computational fluid dynamics that demonstrates key phenomena such as boundary layer separation and vortex shedding of fluid flowing around a blunt object. This problem can be approached by solving the **Navier-Stokes (NS) equation**. 
 
 In this project we propose to (1) develop an implementation of a two-dimensional NS solver to simulate the cylinder wake flow and (2) train a physics-informed neural network to move forward in time using the first time-steps of the simulation.
