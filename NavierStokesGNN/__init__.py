@@ -1,0 +1,3 @@
+from NavierStokesGNN.environment import BoundaryCondition
+from NavierStokesGNN.environment import Rectangle
+from NavierStokesGNN.environment import Environment
