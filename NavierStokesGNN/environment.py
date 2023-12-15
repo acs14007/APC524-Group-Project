@@ -1,203 +1,250 @@
-from abc import abstractmethod, ABC
-from typing import List, Tuple
+from tqdm import tqdm
 
-import tensorflow as tf
-
-import matplotlib.pyplot as plt
 import numpy as np
-
-
-class BoundaryCondition:
-    def __init__(self, boundary_type, location, value=None):
-        self.boundary_type = boundary_type
-        self.location = location
-        self.value = value
-
-
-class Object(ABC):
-    @abstractmethod
-    def get_mesh(self) -> List[Tuple[int, int]]:
-        """
-        Abstract method to get the mesh points of the object in the field that might block the flow.
-        Should return a list of (x, y) tuples representing the mesh points of the object.
-        """
-        pass
-
-
-class Rectangle(Object):
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-    def get_mesh(self) -> List[tuple]:
-        """
-        A list of (x, y) tuples representing the mesh points of the object.
-        """
-        mesh = []
-        for i in range(self.width):
-            for j in range(self.height):
-                mesh.append((self.x + i, self.y + j))
-        return mesh
+import matplotlib.pyplot as plt
 
 
 class Environment:
-    def __init__(self,
-                 width_meters,
-                 height_meters,
-                 points_per_meter,
-                 data_type=tf.float32,
-                 boundary_conditions=None):
-        self.number_of_width_cells = int(width_meters * points_per_meter)
-        self.number_of_height_cells = int(height_meters * points_per_meter)
+    poisson_iteration_steps = 200
 
-        # Initialize velocity and pressure fields
-        self.u = tf.Variable(tf.zeros([self.number_of_height_cells, self.number_of_width_cells]), dtype=data_type)
-        self.v = tf.Variable(tf.zeros([self.number_of_height_cells, self.number_of_width_cells]), dtype=data_type)
-        self.pressure = tf.Variable(tf.zeros([self.number_of_height_cells, self.number_of_width_cells]),
-                                    dtype=data_type)
+    def __init__(
+        self,
+        dx=0.05,
+        len_x=2.0,
+        len_y=2.0,
+        dt: float = 0.01,
+        boundary_conditions=None,
+        objects=None,
+        F=(0.0, 0.0),
+        rho=1.0,
+        nu=0.1,
+        dtype=None,
+    ):
+        self.dtype = np.longdouble if dtype is None else dtype
 
-        self.boundary_conditions = boundary_conditions
-        if self.boundary_conditions is None:
-            self.set_default_boundary_conditions()
+        self.dx = dx
+        self.dy = dx
 
-        self.objects = []
+        self.nx = int(len_x / dx) + 1
+        self.ny = int(len_y / dx) + 1
 
-    def set_default_boundary_conditions(self, default_velocity=1.0):
-        """
-        Set default boundary conditions for a pipe flow.
-        """
-        # Fixed velocity at the inlet (left boundary)
-        velocity = default_velocity
-        left_boundary = BoundaryCondition('fixed-velocity', 'left', velocity)
+        self.x = np.linspace(0, len_x, self.nx, dtype=self.dtype)
+        self.y = np.linspace(0, len_y, self.ny, dtype=self.dtype)
 
-        # Fixed velocity at the outlet (right boundary)
-        right_boundary = BoundaryCondition('fixed-velocity', 'right', velocity)
+        self.dt = dt
 
-        # No-slip (zero velocity) condition at other boundaries
-        top_boundary = BoundaryCondition('no-slip', 'top')
-        bottom_boundary = BoundaryCondition('no-slip', 'bottom')
+        self.X, self.Y = np.meshgrid(self.x, self.y)
 
-        self.boundary_conditions = [left_boundary, top_boundary, bottom_boundary, right_boundary]
+        self.u = np.zeros((self.ny, self.nx), dtype=self.dtype)
+        self.un = np.zeros((self.ny, self.nx), dtype=self.dtype)
 
-    @tf.function
-    def set_boundary_condition(self, boundary_condition: BoundaryCondition):
-        """
-        Apply a single boundary condition.
-        """
-        if boundary_condition.boundary_type == 'fixed-velocity':
-            # For edges such as left and right edge
-            # Only applies the boundary condition to the direction perpendicular to the edge
-            if boundary_condition.location == 'left':
-                self.u[:, 0].assign(tf.fill([self.number_of_height_cells], boundary_condition.value))
-            elif boundary_condition.location == 'right':
-                self.u[:, -1].assign(tf.fill([self.number_of_height_cells], boundary_condition.value))
-            elif boundary_condition.location == 'top':
-                self.v[0, :].assign(tf.fill([self.number_of_width_cells], boundary_condition.value))
-            elif boundary_condition.location == 'bottom':
-                self.v[-1, :].assign(tf.fill([self.number_of_width_cells], boundary_condition.value))
+        self.v = np.zeros((self.ny, self.nx), dtype=self.dtype)
+        self.vn = np.zeros((self.ny, self.nx), dtype=self.dtype)
 
-        elif boundary_condition.boundary_type == 'no-slip':
-            if boundary_condition.location == 'top':
-                self.u[0, :].assign(tf.zeros(self.number_of_width_cells))
-                self.v[0, :].assign(tf.zeros(self.number_of_width_cells))
-            elif boundary_condition.location == 'bottom':
-                self.u[-1, :].assign(tf.zeros(self.number_of_width_cells))
-                self.v[-1, :].assign(tf.zeros(self.number_of_width_cells))
-            elif boundary_condition.location == 'right':
-                self.u[:, -1].assign(tf.zeros(self.number_of_height_cells))
-                self.v[:, -1].assign(tf.zeros(self.number_of_height_cells))
-            elif boundary_condition.location == 'left':
-                self.u[:, 0].assign(tf.zeros(self.number_of_height_cells))
-                self.v[:, 0].assign(tf.zeros(self.number_of_height_cells))
+        self.b = np.zeros((self.ny, self.nx), dtype=self.dtype)
+        self.p = np.ones((self.ny, self.nx), dtype=self.dtype)
+        self.pn = np.ones((self.ny, self.nx), dtype=self.dtype)
 
-        elif boundary_condition.boundary_type == 'perfect_slip':
-            if boundary_condition.location == 'top':
-                # Assign boundary_condition.value to the top
-                self.u[0, :].assign(tf.fill([self.number_of_width_cells], boundary_condition.value))
-                self.v[0, :].assign(tf.zeros(self.number_of_width_cells))
-            elif boundary_condition.location == 'bottom':
-                # Assign boundary_condition.value to the bottom
-                self.u[-1, :].assign(tf.fill([self.number_of_width_cells], boundary_condition.value))
-                self.v[-1, :].assign(tf.zeros(self.number_of_width_cells))
-            elif boundary_condition.location == 'right':
-                # Assign boundary_condition.value to the right
-                self.u[:, -1].assign(tf.zeros(self.number_of_height_cells))
-                self.v[:, -1].assign(tf.fill([self.number_of_height_cells], boundary_condition.value))
-            elif boundary_condition.location == 'left':
-                # Assign boundary_condition.value to the left
-                self.u[:, 0].assign(tf.zeros(self.number_of_height_cells))
-                self.v[:, 0].assign(tf.fill([self.number_of_height_cells], boundary_condition.value))
+        self.F = F
 
-    @tf.function
-    def set_all_boundary_conditions(self):
-        """
-        Apply all boundary conditions.
-        """
-        if self.boundary_conditions:
-            for boundary_condition in self.boundary_conditions:
-                self.set_boundary_condition(boundary_condition)
+        self.boundary_conditions = (
+            boundary_conditions if boundary_conditions is not None else []
+        )
 
-    def add_object(self, obj: Rectangle):
-        """
-        Add an object to the environment and apply boundary conditions.
-        """
-        self.objects.append(obj)
-        mesh = obj.get_mesh()
-        for point in mesh:
-            x, y = point
+        self.objects = objects if objects is not None else []
 
-            # Apply no-slip condition on the object's points
-            # TODO: Implement this in a more efficient way
-            # self.u[y, x].assign(0)
-            # self.v[y, x].assign(0)
+        self.rho = rho
+        self.nu = nu
 
-    def plot(self, show=True, path=None):
-        """
-        Plot the pressure field and overlay streamlines for the velocity field.
-        """
-        # Convert TensorFlow tensors to numpy arrays for plotting
-        u_np = self.u.numpy()
-        v_np = self.v.numpy()
-        pressure_np = self.pressure.numpy()
+        self.stepcount = 0
 
-        # Create a meshgrid for plotting
-        y_, x_ = np.mgrid[0:self.number_of_height_cells, 0:self.number_of_width_cells]
+    def update_b_matrix(self):
+        # Reset the b matrix
+        self.b = self.b * 0
 
-        # Plotting
-        plt.figure(figsize=(10, 5))
-        plt.streamplot(x_, y_, u_np, v_np, color='blue', density=2, arrowstyle='->')
-        plt.imshow(pressure_np, extent=(0, self.number_of_width_cells, 0, self.number_of_height_cells),
-                   origin='lower', cmap='hot', alpha=0.5)
-        plt.colorbar(label='Pressure')
+        self.b[1:-1, 1:-1] = self.rho * (
+            1
+            / self.dt
+            * (
+                (self.u[1:-1, 2:] - self.u[1:-1, 0:-2]) / (2 * self.dx)
+                + (self.v[2:, 1:-1] - self.v[0:-2, 1:-1]) / (2 * self.dy)
+            )
+            - ((self.u[1:-1, 2:] - self.u[1:-1, 0:-2]) / (2 * self.dx)) ** 2
+            - 2
+            * (
+                (self.u[2:, 1:-1] - self.u[0:-2, 1:-1])
+                / (2 * self.dy)
+                * (self.v[1:-1, 2:] - self.v[1:-1, 0:-2])
+                / (2 * self.dx)
+            )
+            - ((self.v[2:, 1:-1] - self.v[0:-2, 1:-1]) / (2 * self.dy)) ** 2
+        )
+        return self
 
-        # Plot object points
-        for obj in self.objects:
-            mesh = obj.get_mesh()
-            for point in mesh:
-                plt.scatter(*point, color='black')
+    def update_pressure_matrix(self):
+        for q in range(self.poisson_iteration_steps):
+            self.pn = self.p.copy()
+            self.p[1:-1, 1:-1] = (
+                (self.pn[1:-1, 2:] + self.pn[1:-1, 0:-2]) * self.dy**2
+                + (self.pn[2:, 1:-1] + self.pn[0:-2, 1:-1]) * self.dx**2
+            ) / (2 * (self.dx**2 + self.dy**2)) - self.dx**2 * self.dy**2 / (
+                2 * (self.dx**2 + self.dy**2)
+            ) * self.b[
+                1:-1, 1:-1
+            ]
+        return self
 
-        plt.title('Streamlines over Pressure Field')
-        if path is not None:
-            plt.savefig(path)
+    def u_matrix_update_step(self):
+        self.u[1:-1, 1:-1] = (
+            self.un[1:-1, 1:-1]
+            - self.un[1:-1, 1:-1]
+            * self.dt
+            / self.dx
+            * (self.un[1:-1, 1:-1] - self.un[1:-1, 0:-2])
+            - self.vn[1:-1, 1:-1]
+            * self.dt
+            / self.dy
+            * (self.un[1:-1, 1:-1] - self.un[0:-2, 1:-1])
+            - self.dt
+            / (2 * self.rho * self.dx)
+            * (self.p[1:-1, 2:] - self.p[1:-1, 0:-2])
+            + self.nu
+            * (
+                self.dt
+                / self.dx**2
+                * (self.un[1:-1, 2:] - 2 * self.un[1:-1, 1:-1] + self.un[1:-1, 0:-2])
+                + self.dt
+                / self.dy**2
+                * (self.un[2:, 1:-1] - 2 * self.un[1:-1, 1:-1] + self.un[0:-2, 1:-1])
+            )
+            + self.F[0] * self.dt
+        )
 
-        if show:
-            plt.show()
+    def v_matrix_update_step(self):
+        self.v[1:-1, 1:-1] = (
+            self.vn[1:-1, 1:-1]
+            - self.un[1:-1, 1:-1]
+            * self.dt
+            / self.dx
+            * (self.vn[1:-1, 1:-1] - self.vn[1:-1, 0:-2])
+            - self.vn[1:-1, 1:-1]
+            * self.dt
+            / self.dy
+            * (self.vn[1:-1, 1:-1] - self.vn[0:-2, 1:-1])
+            - self.dt
+            / (2 * self.rho * self.dy)
+            * (self.p[2:, 1:-1] - self.p[0:-2, 1:-1])
+            + self.nu
+            * (
+                self.dt
+                / self.dx**2
+                * (self.vn[1:-1, 2:] - 2 * self.vn[1:-1, 1:-1] + self.vn[1:-1, 0:-2])
+                + self.dt
+                / self.dy**2
+                * (self.vn[2:, 1:-1] - 2 * self.vn[1:-1, 1:-1] + self.vn[0:-2, 1:-1])
+            )
+            + self.F[1] * self.dt
+        )
 
-        return plt
+    def set_boundary_conditions(self):
+        for boundary_condition in self.boundary_conditions:
+            boundary_condition.apply_boundary_condition(self)
 
+        return self
 
-if __name__ == '__main__':
-    print('Starting Pipe Simulation Test...')
-    env = Environment(10, 5, 10)
-    env.set_default_boundary_conditions()
+    def set_object_boundary_conditions(self):
+        for object in self.objects:
+            object.apply_boundary_conditions(self)
 
-    # Add a rectangular object to the center of the domain
-    center_x = env.number_of_width_cells // 2
-    center_y = env.number_of_height_cells // 2
-    rect_obj = Rectangle(center_x - 1, center_y - 1, 2, 2)  # Example rectangle
-    env.add_object(rect_obj)
+    def take_one_step(self):
+        self.un = self.u.copy()
+        self.vn = self.v.copy()
 
-    env.plot(path='example_environment.png')
-    print('Boundary conditions set and plot generated with object')
+        self.u_matrix_update_step()
+        self.v_matrix_update_step()
+
+        self.set_boundary_conditions()
+        self.set_object_boundary_conditions()
+
+        self.update_b_matrix()
+        self.update_pressure_matrix()
+
+        self.stepcount += 1
+        return self
+
+    def run_many_steps(self, steps: int):
+        for _ in tqdm(range(steps), total=steps):
+            self.take_one_step()
+
+    def plot_quiver_plot(
+        self, filepath=None, show_objects=True, number_of_items_to_skip=3
+    ):
+        width = 10
+        height = width / self.nx * self.ny
+        fig, ax = plt.subplots(figsize=(width, height), dpi=200)
+        ax.contourf(self.X, self.Y, self.p, alpha=0.5, cmap="Pastel1")
+        # ax.quiver(self.X, self.Y, self.u, self.v, color="xkcd:dark grey")
+        ax.quiver(
+            self.X[::number_of_items_to_skip, ::number_of_items_to_skip],
+            self.Y[::number_of_items_to_skip, ::number_of_items_to_skip],
+            self.u[::number_of_items_to_skip, ::number_of_items_to_skip],
+            self.v[::number_of_items_to_skip, ::number_of_items_to_skip],
+            color="xkcd:dark grey",
+        )
+
+        if show_objects:
+            for object in self.objects:
+                object.plot_object(ax)
+
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_title("Velocity field")
+        ax.set_aspect("equal")
+
+        plt.tight_layout()
+
+        if filepath is not None:
+            plt.savefig(filepath)
+
+        plt.show()
+
+    def plot_streamline_plot(
+        self,
+        filepath=None,
+        show_objects=True,
+        return_figure=False,
+        vmin=None,
+        vmax=None,
+    ):
+        width = 10
+        height = width / self.nx * self.ny
+        fig, ax = plt.subplots(figsize=(width, height), dpi=200)
+        if (vmin is not None) and (vmax is not None):
+            ax.contourf(
+                self.X, self.Y, self.p, alpha=0.5, cmap="Pastel2", vmin=vmin, vmax=vmax
+            )
+        else:
+            ax.contourf(self.X, self.Y, self.p, alpha=0.5, cmap="Pastel2")
+        ax.streamplot(
+            self.X, self.Y, self.u, self.v, color="xkcd:purple", arrowstyle="->"
+        )
+
+        if show_objects:
+            for object in self.objects:
+                object.plot_object(ax)
+
+        ax.set_xlabel("X")
+        ax.set_ylabel("Y")
+        ax.set_title("Velocity field")
+        ax.set_aspect("equal")
+
+        plt.tight_layout()
+
+        if filepath is not None:
+            plt.savefig(filepath)
+
+        if return_figure:
+            plt.clf()
+            return fig
+
+        plt.show()
