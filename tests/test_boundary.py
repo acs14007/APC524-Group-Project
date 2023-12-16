@@ -1,6 +1,86 @@
 import numpy as np
-from NavierStokesGNN.environment import Environment
-from NavierStokesGNN.boundary_condition import TopSideNoSlipBoundaryCondition
+from NavierStokesGNN import Environment
+from NavierStokesGNN import TopSideNoSlipBoundaryCondition
+from NavierStokesGNN import RightSideFixedVelocityBoundaryCondition
+from NavierStokesGNN import LeftSideFixedVelocityBoundaryCondition
+from NavierStokesGNN import TopSideFixedVelocityBoundaryCondition
+from NavierStokesGNN import BottomSideFixedVelocityBoundaryCondition
+from NavierStokesGNN import BottomSideNoSlipBoundaryCondition
+
+
+def test_right_side_fixed_velocity_boundary_condition():
+    env = Environment()
+    u_value, v_value = 4, 4
+    boundary_condition = RightSideFixedVelocityBoundaryCondition(u_value, v_value)
+
+    boundary_condition.apply_boundary_condition(env)
+
+    # Assert that the right side of u and v matrices are set to the specified values
+    assert np.all(
+        env.u[1:-1, -1] == u_value
+    ), "Right side of u matrix should be set to u_value"
+    assert np.all(
+        env.v[1:-1, -1] == v_value
+    ), "Right side of v matrix should be set to v_value"
+
+
+def test_left_side_fixed_velocity_boundary_condition():
+    env = Environment()
+    u_value, v_value = 1, 1
+    boundary_condition = LeftSideFixedVelocityBoundaryCondition(u_value, v_value)
+
+    boundary_condition.apply_boundary_condition(env)
+
+    assert np.all(
+        env.u[1:-1, 0] == u_value
+    ), "Left side of u matrix should be set to u_value"
+    assert np.all(
+        env.v[1:-1, 0] == v_value
+    ), "Left side of v matrix should be set to v_value"
+
+
+def test_top_side_fixed_velocity_boundary_condition():
+    env = Environment()
+    u_value, v_value = 2, 2
+    boundary_condition = TopSideFixedVelocityBoundaryCondition(u_value, v_value)
+
+    boundary_condition.apply_boundary_condition(env)
+
+    assert np.all(
+        env.u[-1, 1:-1] == u_value
+    ), "Top row of u matrix should be set to u_value"
+    assert np.all(
+        env.v[-1, 1:-1] == v_value
+    ), "Top row of v matrix should be set to v_value"
+
+
+def test_bottom_side_fixed_velocity_boundary_condition():
+    env = Environment()
+    u_value, v_value = 3, 3
+    boundary_condition = BottomSideFixedVelocityBoundaryCondition(u_value, v_value)
+
+    boundary_condition.apply_boundary_condition(env)
+
+    assert np.all(
+        env.u[0, 1:-1] == u_value
+    ), "Bottom row of u matrix should be set to u_value"
+    assert np.all(
+        env.v[0, 1:-1] == v_value
+    ), "Bottom row of v matrix should be set to v_value"
+
+
+def test_bottom_side_no_slip_boundary_condition():
+    env = Environment()
+    boundary_condition = BottomSideNoSlipBoundaryCondition()
+
+    boundary_condition.apply_boundary_condition(env)
+
+    assert np.all(env.u[0, :] == 0), "Bottom row of u matrix should be 0"
+    assert np.all(env.v[0, :] == 0), "Bottom row of v matrix should be 0"
+    assert np.array_equal(
+        env.p[0, :], env.p[1, :]
+    ), "Bottom row of p matrix should be equal to second-to-bottom row"
+
 
 def test_top_side_no_slip_boundary_condition():
     """
@@ -18,9 +98,6 @@ def test_top_side_no_slip_boundary_condition():
     assert np.all(env.v[-1, :] == 0), "Top row of v matrix should be 0"
 
     # Check if the top row of p matrix is copied from the second-to-top row
-    assert np.array_equal(env.p[-1, :], env.p[-2, :]), "Top row of p matrix should be equal to second-to-top row"
-
-# Run this test
-test_top_side_no_slip_boundary_condition()
-
-
+    assert np.array_equal(
+        env.p[-1, :], env.p[-2, :]
+    ), "Top row of p matrix should be equal to second-to-top row"

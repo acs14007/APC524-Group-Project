@@ -1,6 +1,5 @@
-import pytest
 import numpy as np
-from NavierStokesGNN.environment import Environment
+from NavierStokesGNN import Environment
 import copy
 
 def test_environment_initialization_defaults():
@@ -50,7 +49,7 @@ def test_update_pressure_matrix():
 
 def test_take_one_step():
     env = Environment()
-    # Modify initial conditions to ensure change after step
+    # Modify initial conditions to ensure change after one step
     env.u[1:-1, 1:-1] = 1
     env.v[1:-1, 1:-1] = 1
     initial_state = copy.deepcopy(env)
