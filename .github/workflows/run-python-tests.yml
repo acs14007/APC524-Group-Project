@@ -2,9 +2,13 @@ name: Python Tests
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - Github-Actions
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - Github-Actions
   workflow_dispatch:
 
 jobs:
