@@ -2,6 +2,7 @@ from tqdm import tqdm
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.io
 
 
 class Environment:
@@ -55,6 +56,11 @@ class Environment:
 
         self.rho = rho
         self.nu = nu
+
+        self.u_list = []
+        self.v_list = []
+        self.p_list = []
+        self.data_dict = None
 
         self.stepcount = 0
 
@@ -156,7 +162,7 @@ class Environment:
         for object in self.objects:
             object.apply_boundary_conditions(self)
 
-    def take_one_step(self):
+    def take_one_step(self, save = False):
         self.un = self.u.copy()
         self.vn = self.v.copy()
 
@@ -168,13 +174,38 @@ class Environment:
 
         self.update_b_matrix()
         self.update_pressure_matrix()
-
         self.stepcount += 1
+
+        if save:
+            self.u_list.append(self.u.copy())
+            self.v_list.append(self.v.copy())
+            self.p_list.append(self.p.copy())
+
         return self
 
-    def run_many_steps(self, steps: int):
-        for _ in tqdm(range(steps), total=steps):
-            self.take_one_step()
+    def run_many_steps(self, steps: int, save = False):
+        if save:
+            for _ in tqdm(range(steps), total=steps):
+                self.take_one_step(save = True)
+            u_total_array = np.stack(self.u_list, axis=-1)
+            v_total_array = np.stack(self.v_list, axis=-1)
+            p_total_array = np.stack(self.p_list, axis=-1)
+            t_total_array = np.arange(0, steps * self.dt, self.dt)
+            x_total_array = self.x.copy()
+            y_total_array = self.y.copy()
+            dict_keys = ['u_star', 'v_star', 'p_star', 't', 'x_star', 'y_star']
+            dict_values = [u_total_array, v_total_array, p_total_array, 
+                           t_total_array, x_total_array, y_total_array]
+            self.data_dict = dict(zip(dict_keys, dict_values))
+        else:
+            for _ in tqdm(range(steps), total=steps):
+                self.take_one_step()
+
+    def save_model_run(self, filepath: str):
+        if self.data_dict is None:
+            raise Exception("No data to save. Run the model first with run_many_steps() with argument save = True")
+        else:
+            scipy.io.savemat(filepath, self.data_dict)
 
     def plot_quiver_plot(
         self, filepath=None, show_objects=True, number_of_items_to_skip=3, title=None
