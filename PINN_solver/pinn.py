@@ -11,6 +11,11 @@ print(tf.__version__)
 
 class PhysicsInformedNN:
     def __init__(self, x, y, t, u, v, layers):
+        self.u_pred = None
+        self.v_pred = None
+        self.p_pred = None
+        self.f_u_pred = None
+        self.f_v_pred = None
 
         X = np.concatenate([x, y, t], 1)
 
@@ -43,6 +48,19 @@ class PhysicsInformedNN:
     Functions used to establish the initial neural network
     ===============================================================
     """
+
+    def initialize_NN(self, layers):
+        weights = []
+        biases = []
+        num_layers = len(layers)
+        for l in range(0, num_layers - 1):
+            W = self.xavier_init(size=[layers[l], layers[l + 1]])
+            b = tf.Variable(
+                tf.zeros([1, layers[l + 1]], dtype=tf.float32), dtype=tf.float32
+            )
+            weights.append(W)
+            biases.append(b)
+        return weights, biases
 
     def initalize_NN(self, layers):
         weights = []
@@ -82,18 +100,19 @@ class PhysicsInformedNN:
         return Y
 
     """
-    Functions used to building the physics-informed contrainst and loss
+    Functions used to building the physics-informed constraint and loss
     ===============================================================
     """
 
-    def net_psi_p(self, x, y, t):
+    def net_psi_p(self, x, t):
         psi_p = self.neural_net(tf.concat([x, t], 1), self.weights, self.biases)
         return psi_p
 
     def net_NS(self, x, y, t):
 
-        psi_and_p = self.net_psi_p(x, y, t)
-        psi = psi_and_p[:, 0:1]  # psi is a latent function describing u and v
+        psi_and_p = self.net_psi_p(x, t)
+        # psi is a latent function describing u and v
+        psi = psi_and_p[:, 0:1]
         p = psi_and_p[:, 1:2]
 
         u = tf.gradients(psi, y)[0]
@@ -124,7 +143,6 @@ class PhysicsInformedNN:
         return u, v, p, f_u, f_v
 
     @tf.function
-
     # Loss function for the entire PINN
     def loss_NN(self):
         self.u_pred, self.v_pred, self.p_pred, self.f_u_pred, self.f_v_pred = (
