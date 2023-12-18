@@ -1,3 +1,4 @@
+import sys
 from navier_stokes_fdm import Environment
 from navier_stokes_fdm import Rectangle
 import navier_stokes_fdm.boundary_condition as bc
