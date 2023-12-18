@@ -15,11 +15,11 @@ class NavierStokesPINN_IO():
         self.training_data = dict()
         self.test_data = dict()
         self.predict_data = dict()
+        self.multi_predict_data = dict()
 
-    def load_data_file(self, filename: str):
+    def parse_data_file(self, filename: str):
         self.data = scipy.io.loadmat(os.path.join(self.input_path, filename))
 
-    def prepare_data(self):
         self.U_star = self.data['U_star'] # N x 2 x T
         self.P_star = self.data['p_star'] # N x T
         self.t_star = self.data['t'] # T x 1
@@ -63,18 +63,67 @@ class NavierStokesPINN_IO():
         self.v_star = self.U_star[:,1,snap]
         self.p_star = self.P_star[:,snap]
 
-        x_test = tf.cast(self.x_star, dtype=tf.float32)
-        y_test = tf.cast(self.y_star, dtype=tf.float32)
-        t_test = tf.cast(self.t_star, dtype=tf.float32)
+        self.test_data['x_test'] = self.x_star
+        self.test_data['y_test'] = self.y_star
+        self.test_data['t_test'] = self.t_star
 
-        self.test_data['x_test'] = x_test
-        self.test_data['y_test'] = y_test
-        self.test_data['t_test'] = t_test
+    def save_model_weights_biases(self, trained_model, weights_filename: str, biases_filename: str):
+        weights_as_np = [weight.numpy() for weight in trained_model.weights]
+        biases_as_np = [bias.numpy() for bias in trained_model.biases]
 
-    def save_predict_data(self, trained_model):
-        u_pred, v_pred, p_pred = trained_model.predict(self.test_data['x_test'], self.test_data['y_test'], self.test_data['t_test'])
+        np.savez(os.path.join(self.output_path, weights_filename), *weights_as_np)
+        np.savez(os.path.join(self.output_path, biases_filename), *biases_as_np) 
 
-    
+    def load_model_weights_biases(self, weights_filename: str, biases_filename: str):
+        weights_files = np.load(os.path.join(self.output_path, weights_filename), allow_pickle=True)
+        biases_files = np.load(os.path.join(self.output_path, biases_filename), allow_pickle=True) 
+        weights = [np.array(weights_files[file]) for file in weights_files.files]
+        biases = [np.array(biases_files[file]) for file in biases_files.files]
+
+        return weights, biases
+
+    def save_predict_data(self, trained_model, predict_filename: str = None):
+        x_test = tf.cast(self.test_data['x_test'], dtype=tf.float32)
+        y_test = tf.cast(self.test_data['y_test'], dtype=tf.float32)
+        t_test = tf.cast(self.test_data['t_test'], dtype=tf.float32)
+        u_pred, v_pred, p_pred = trained_model.predict(x_test, y_test, t_test)
+        self.predict_data['u_pred'] = u_pred.numpy()
+        self.predict_data['v_pred'] = v_pred.numpy()
+        self.predict_data['p_pred'] = p_pred.numpy()
+
+        if predict_filename is not None:
+            np.savez(os.path.join(self.output_path, predict_filename), **self.predict_data)
+
+    def save_multi_predict_data(self, trained_model, time_snap_arr, predict_filename: str):
+
+        for i in time_snap_arr:
+            snap_num = i
+            snap = np.array([snap_num])
+            x_star = self.X_star[:,0:1]
+            y_star = self.X_star[:,1:2]
+            t_star = self.TT[:,snap]
+
+            u_star = self.U_star[:,0,snap]
+            v_star = self.U_star[:,1,snap]
+            p_star = self.P_star[:,snap]
+
+            x_test = tf.cast(x_star, dtype=tf.float32)
+            y_test = tf.cast(y_star, dtype=tf.float32)
+            t_test = tf.cast(t_star, dtype=tf.float32)
+
+            # Prediction
+            u_pred, v_pred, p_pred = trained_model.predict(x_test, y_test, t_test)
+            self.multi_predict_data['u_pred_%d' %i] = u_pred.numpy()
+            self.multi_predict_data['v_pred_%d' %i] = v_pred.numpy()
+            self.multi_predict_data['p_pred_%d' %i] = p_pred.numpy()
+            self.multi_predict_data['u_exact_%d' %i] = u_star
+            self.multi_predict_data['v_exact_%d' %i] = v_star
+            self.multi_predict_data['p_exact_%d' %i] = p_star
+            
+        np.savez(os.path.join(self.output_path, predict_filename), **self.multi_predict_data)
+
+
+
 
 
 

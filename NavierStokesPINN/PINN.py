@@ -41,7 +41,7 @@ class NeuralNetwork(ABC):
 
 class PhysicsInformedNN:
 
-    def __init__(self, x, y, t, u, v, Re, layers):
+    def __init__(self, x, y, t, u, v, Re, layers, starting_weights=None, starting_biases=None):
 
         X = np.concatenate([x, y, t], 1)
 
@@ -62,7 +62,11 @@ class PhysicsInformedNN:
         self.layers = layers
 
         # Initialize the NN
-        self.weights, self.biases = self.initialize_NN(layers)
+        if (starting_weights & starting_biases) is not None:
+            self.weights = tf.Variable(starting_weights)
+            self.biases = tf.Variable(starting_biases)
+        else:
+            self.weights, self.biases = self.initialize_NN(layers)
 
         # Create a list including all training variables
         self.train_variables = self.weights + self.biases
