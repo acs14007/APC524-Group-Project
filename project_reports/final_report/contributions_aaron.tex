@@ -40,7 +40,40 @@ These can be combined to make complex simulations with multiple objects interact
 
 \subsubsection{Example Simulation Setup}
 \begin{verbatim}
-\inputminted{python}{examples/box_example.py}
+from navier_stokes_fdm import Environment
+from navier_stokes_fdm import Rectangle
+import navier_stokes_fdm.boundary_condition as bc
+
+
+U = 1  # m/s
+dimension = 0.005
+
+boundary_conditions = [
+    bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.LeftSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+]
+
+
+x1, y1 = 0.0125, (0.04 / 2) - (dimension / 2)
+objects = [Rectangle(x1, y1, x1 + dimension, y1 + dimension)]
+
+
+a = Environment(
+    F=(1.0, 0.0),
+    len_x=0.06,
+    len_y=0.04,
+    dt=0.00000015,
+    dx=0.0001,
+    boundary_conditions=boundary_conditions,
+    objects=objects,
+    rho=0.6125  # kg/m³
+    nu=3e-5  # m²/s
+)
+
+a.run_many_steps(480)
+a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png")
 \end{verbatim}
 
 \begin{figure}[h]
@@ -51,10 +84,13 @@ These can be combined to make complex simulations with multiple objects interact
 \end{figure}
 
 
+
 \subsection{Unit testing}
-% TODO: Write this
+To further ensure code functionality I implemented unit tests using ``pytest'' for the boundary conditions.
+Each test creates an environment, applies a boundary condition, and checks to see if the boundary condition has been applied correctly.
 
 \subsubsection{Automated Unit Testing with GitHub Actions}
-% TODO: Write this
+To make sure that changes to the code do not break the test, I implemented automated testing using GitHub Actions.
+I wrote a GitHub Action that runs the ``pytest'' unit tests on every pull request and commit to the repository.
 
 \section{Simulation of a fluid flow around a cylinder}
