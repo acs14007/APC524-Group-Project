@@ -75,6 +75,24 @@ class BottomSideNoSlipBoundaryCondition(BoundaryCondition):
         environment.p[0, :] = environment.p[1, :]
 
 
+class TopSideFreeSlipBoundaryCondition(BoundaryCondition):
+    def apply_boundary_condition(self, environment):
+        environment.v[-1, :] = 0
+        environment.p[-1, :] = environment.p[-2, :]
+
+
+class BottomSideFreeSlipBoundaryCondition(BoundaryCondition):
+    def apply_boundary_condition(self, environment):
+        environment.v[0, :] = 0
+        environment.p[0, :] = environment.p[1, :]
+
+
+class RightSideFreeSlipBoundaryCondition(BoundaryCondition):
+    def apply_boundary_condition(self, environment):
+        environment.u[:, -1] = 0
+        environment.p[:, -1] = environment.p[:, -2]
+
+
 class LeftSidePeriodicBoundaryCondition(PeriodicBoundaryCondition):
     def apply_b_boundary_condition(self, environment):
         environment.b[1:-1, 0] = environment.rho * (
