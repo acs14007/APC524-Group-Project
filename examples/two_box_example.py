@@ -18,8 +18,10 @@ boundary_conditions = [
 dimension = 0.005
 x1, y1 = 0.0125, (0.04 / 2) - (dimension / 2)
 
-objects = [Rectangle(x1, y1 - 0.01, x1 + dimension, y1 - 0.01 + dimension),
-           Rectangle(x1, y1 + 0.01, x1 + dimension, y1 + 0.01 + dimension)]
+objects = [
+    Rectangle(x1, y1 - 0.01, x1 + dimension, y1 - 0.01 + dimension),
+    Rectangle(x1, y1 + 0.01, x1 + dimension, y1 + 0.01 + dimension),
+]
 
 L = objects[0].y2 - objects[0].y1
 Reynolds = (rho_air * U * L) / nu_air
@@ -38,5 +40,5 @@ a = Environment(
 )
 
 a.run_many_steps(240)
-a.plot_streamline_plot(filepath="../Figures/two_box_example_streamline.png")
-a.plot_quiver_plot(filepath="../Figures/two_box_example_quiver.png")
+a.plot_streamline_plot(title="", filepath="../Figures/two_box_example_streamline.png")
+a.plot_quiver_plot(title="", filepath="../Figures/two_box_example_quiver.png")

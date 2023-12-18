@@ -36,5 +36,5 @@ a = Environment(
 )
 
 a.run_many_steps(480)
-a.plot_streamline_plot(filepath="../Figures/box_example_streamline.png")
-a.plot_quiver_plot(filepath="../Figures/box_example_quiver.png")
+a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png")
+a.plot_quiver_plot(title="", filepath="../Figures/box_example_quiver.png")

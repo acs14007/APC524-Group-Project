@@ -177,7 +177,7 @@ class Environment:
             self.take_one_step()
 
     def plot_quiver_plot(
-        self, filepath=None, show_objects=True, number_of_items_to_skip=3
+        self, filepath=None, show_objects=True, number_of_items_to_skip=3, title=None
     ):
         width = 10
         height = width / self.nx * self.ny
@@ -198,7 +198,10 @@ class Environment:
 
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
-        ax.set_title("Velocity field")
+        if title is None:
+            ax.set_title("Velocity field")
+        else:
+            ax.set_title(title)
         ax.set_aspect("equal")
 
         plt.tight_layout()
@@ -215,6 +218,7 @@ class Environment:
         return_figure=False,
         vmin=None,
         vmax=None,
+        title=None,
     ):
         width = 10
         height = width / self.nx * self.ny
@@ -235,7 +239,10 @@ class Environment:
 
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
-        ax.set_title("Velocity field")
+        if title is None:
+            ax.set_title("Velocity field")
+        else:
+            ax.set_title(title)
         ax.set_aspect("equal")
 
         plt.tight_layout()
