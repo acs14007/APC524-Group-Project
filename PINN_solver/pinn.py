@@ -75,7 +75,8 @@ class PhysicsInformedNN:
             biases.append(b)
         return weights, biases
 
-    def xavier_init(self, size):
+    @staticmethod
+    def xavier_init(size):
         in_dim = size[0]
         out_dim = size[1]
         xavier_stddev = np.sqrt(2 / (in_dim + out_dim))
