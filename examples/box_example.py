@@ -1,6 +1,6 @@
-from NavierStokesGNN import Environment
-from NavierStokesGNN import Rectangle
-import NavierStokesGNN.boundary_condition as bc
+from navier_stokes_fdm import Environment
+from navier_stokes_fdm import Rectangle
+import navier_stokes_fdm.boundary_condition as bc
 
 
 U = 1  # m/s

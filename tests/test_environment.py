@@ -1,5 +1,5 @@
 import numpy as np
-from NavierStokesGNN import Environment
+from navier_stokes_fdm import Environment
 import copy
 
 def test_environment_initialization_defaults():

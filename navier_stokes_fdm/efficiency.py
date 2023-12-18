@@ -13,8 +13,8 @@ This script is part of a broader fluid dynamics simulation project, facilitating
 
 
 import cProfile
-from NavierStokesGNN.environment import Environment
-from NavierStokesGNN.boundary_condition import (
+from navier_stokes_fdm.environment import Environment
+from navier_stokes_fdm.boundary_condition import (
     TopSideNoSlipBoundaryCondition,
     BottomSideNoSlipBoundaryCondition,
     LeftSideFixedVelocityBoundaryCondition,
@@ -24,7 +24,7 @@ from NavierStokesGNN.boundary_condition import (
     LeftSidePeriodicBoundaryCondition,
     RightSidePeriodicBoundaryCondition
 )
-from NavierStokesGNN.object import Rectangle
+from navier_stokes_fdm.object import Rectangle
 
 def run_simulation():
     # Initialize the environment

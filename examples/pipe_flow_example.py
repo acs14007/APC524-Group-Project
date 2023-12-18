@@ -1,5 +1,5 @@
-from NavierStokesGNN import Environment
-import NavierStokesGNN.boundary_condition as bc
+from navier_stokes_fdm import Environment
+import navier_stokes_fdm.boundary_condition as bc
 
 boundary_conditions = [bc.TopSideNoSlipBoundaryCondition(),
                        bc.BottomSideNoSlipBoundaryCondition(),

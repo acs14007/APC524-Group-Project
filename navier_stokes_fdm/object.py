@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from NavierStokesGNN.boundary_condition import BoundaryCondition
+from navier_stokes_fdm.boundary_condition import BoundaryCondition
 import numpy as np
 
 
