@@ -14,7 +14,7 @@ boundary_conditions = [
     # bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
     bc.TopSideFreeSlipBoundaryCondition(),
     bc.RightSideFreeSlipBoundaryCondition(),
-    bc.BottomSideFreeSlipBoundaryCondition()
+    bc.BottomSideFreeSlipBoundaryCondition(),
 ]
 
 dimension = 0.005
@@ -32,13 +32,15 @@ a = Environment(
     nu=nu_air,
 )
 
-
-
 for i in range(14):
     a.run_many_steps(30)
-    a.plot_streamline_plot(title="",  filepath=f"../Figures/cylinder_example_timesteps/streamline{i:02d}.png")
+    a.plot_streamline_plot(
+        title="",
+        filepath=f"../Figures/cylinder_example_timesteps/streamline{i:02d}.png",
+    )
 
     if i == 8:
-        a.plot_streamline_plot(title="", filepath="../Figures/cylinder_example_streamline.png")
+        a.plot_streamline_plot(
+            title="", filepath="../Figures/cylinder_example_streamline.png"
+        )
         a.plot_quiver_plot(title="", filepath="../Figures/cylinder_example_quiver.png")
-
