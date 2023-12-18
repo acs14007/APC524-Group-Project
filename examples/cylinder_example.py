@@ -8,10 +8,13 @@ rho_air = 1.225 / 2  # kg/m³
 nu_air = 3e-5  # m²/s
 
 boundary_conditions = [
-    bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
-    bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    # bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    # bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
     bc.LeftSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
-    bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    # bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.TopSideFreeSlipBoundaryCondition(),
+    bc.RightSideFreeSlipBoundaryCondition(),
+    bc.BottomSideFreeSlipBoundaryCondition()
 ]
 
 dimension = 0.005
@@ -29,6 +32,13 @@ a = Environment(
     nu=nu_air,
 )
 
-a.run_many_steps(480)
-a.plot_streamline_plot(title="", filepath="../Figures/cylinder_example_streamline.png")
-a.plot_quiver_plot(title="", filepath="../Figures/cylinder_example_quiver.png")
+
+
+for i in range(14):
+    a.run_many_steps(30)
+    a.plot_streamline_plot(title="",  filepath=f"../Figures/cylinder_example_timesteps/streamline{i:02d}.png")
+
+    if i == 8:
+        a.plot_streamline_plot(title="", filepath="../Figures/cylinder_example_streamline.png")
+        a.plot_quiver_plot(title="", filepath="../Figures/cylinder_example_quiver.png")
+
