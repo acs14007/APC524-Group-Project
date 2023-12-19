@@ -9,6 +9,7 @@ I implemented this solver in python using the NumPy library for efficient array 
 The solver initializes the velocity and pressure fields and tracks changes and interactions between ``parcels'' of fluid interacting with each other.
 Each parcel is stationary and has a velocity and pressure associated with it that is updated at each time step to track the flux into and out of the parcel.
 This solver type enables efficient quick simulations at the cost of using fixed time steps and a fixed grid size.
+I implemented this solver following the equations derived by Joseph as well as work published from Barba et al.\cite{barba2018cfd}.
 
 
 \subsubsection{Environment Setup}
@@ -16,6 +17,31 @@ I designed the solver environment to be flexible and modular so users could easi
 The environment has a customizable grid, with adjustable resolution, time step, and fluid properties.
 This was implemented as a python ``Environment'' Class inside a module.
 The ``Environment'' class also includes automatic plotting routines that enable quick visualization of the fluid flow.
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline01.png}
+        \caption{$9 \mu s$}
+        \label{fig:sub1}
+    \end{subfigure}%
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline02.png}
+        \caption{$13.5 \mu s$}
+        \label{fig:sub2}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline09.png}
+        \caption{$45 \mu s$}
+        \label{fig:sub3}
+    \end{subfigure}
+    \caption{Three time steps of the FD simulation of fluid flow around a a cylinder. The pressure field is shown by the shading while streamlines are shown in purple.}
+    \label{fig:fluid_flow_cylinder_ns_fdm}
+\end{figure}
+
 
 \subsubsection{Boundary Conditions}
 To extend this modularity I abstracted different types of boundary conditions common in fluid simulations.
@@ -79,7 +105,7 @@ a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\linewidth]{Figures/box_example_streamline.png}
-    \caption{Example streamline plot of a fluid flow around a box.}
+    \caption{Example streamline plot of a fluid flow around a box. Each boundary is assigned a fixed velocity. Shading represents the pressure field with lighter colors indicating regions of lower pressure. Streamlines are shown in purple.}
     \label{fig:box_example_streamline}
 \end{figure}
 
@@ -94,5 +120,33 @@ To make sure that changes to the code do not break functionality, I implemented 
 I wrote a GitHub Action that runs the ``pytest'' unit tests on every pull request and commit to the repository.
 
 \section{Simulation of a fluid flow around a cylinder}
-I 
+
+To simulate the fluid flow around a cylinder I initialized a simulation environment of $6cm$ by $4cm$ with a $5mm$ cylinder. I set $\rho$ to be $0.6125 \frac{kg}{m^3}$ and $\nu$ to be $3 * 10^{-5} \frac{m^2}{s}$. These values are physically plausible for air. The left side boundary condition was set to a fixed velocity of $1 \frac{m}{s}$, and the top, right, and bottom boundaries were set as free slip conditions. The $dt$ was set to $0.15 \mu s$, and each step was a total of $30$ time steps, or $4.5 \mu s$. Every $4.5 \mu s$ I generated and saved the streamline plot for analysis. Three selected frames are shown in Figure \ref{fig:fluid_flow_cylinder_ns_fdm}.
+
+The simulation was stable until $10$ time steps. After this point the simulation diverged. A longer simulation could be completed using a higher resolution grid, or by using smaller time steps.
+
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline01.png}
+        \caption{$9 \mu s$}
+        \label{fig:sub1}
+    \end{subfigure}%
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline02.png}
+        \caption{$13.5 \mu s$}
+        \label{fig:sub2}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline09.png}
+        \caption{$45 \mu s$}
+        \label{fig:sub3}
+    \end{subfigure}
+    \caption{Three time steps of the FD simulation of fluid flow around a a cylinder. The pressure field is shown by the shading while streamlines are shown in purple.}
+    \label{fig:fluid_flow_cylinder_ns_fdm}
+\end{figure}
 

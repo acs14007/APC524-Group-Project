@@ -1,0 +1,21 @@
+\section{Introduction}
+The Navier–Stokes (NS) equations describe fluid dynamics and have been applied to weather prediction, glacier dynamics, oceanography, thermal conduction, aircraft design, and architecture \cite{chorin1968numerical}. Despite their widespread use, analytic solutions exist only for a few constrained cases. As a result, the finite difference method (FDM) and finite element method (FEM) have become popular numerical approaches for obtaining approximate solutions \cite{Whiteley2017}. These methods are computationally expensive, often requiring hundreds or thousands of core-hours to produce meaningful accurate results, and the largest simulations often require specialized hardware for effective scalability \cite{michalakes2007wrf}. 
+
+
+
+Recent advances in physics informed neural networks (PINNs) allow for high resolution and physically consistent approximations of the NS equations \cite{jin2021nsfnets} \cite{baymani2015artificial} \cite{eivazi2022physics}. PINNs are supervised neural networks that take advantage of their capabilities as universal function approximators to incorporate model equations, such as partial differential equations, directly into the loss function during training (Figure \ref{fig:PINN_example}) \cite{Raissi2019}. This new loss term, known as the equation loss, is derived from the underlying physical system of equations accompanying the traditional mean square loss.
+
+\section{Overview}
+This project contains the following features:
+
+\begin{enumerate}
+    \item An implementation of a modular Navier-Stokes solver using the Finite Difference Method.
+        \begin{enumerate}
+            \item A python class to define arbitrary environments and environmental conditions.
+            \item Modular boundary conditions allowing for many environment types to be investigated.
+            \item Modular and composable objects that allow for complex environments to be modeled and simulated.
+        \end{enumerate}
+    \item A Physics Informed Neural Network that approximates a Navier-Stokes solver.
+    \item Unit tests implemented with ``pytest''
+    \item Automated testing using GitHub Actions
+\end{enumerate}
