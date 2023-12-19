@@ -20,25 +20,27 @@ The ``Environment'' class also includes automatic plotting routines that enable 
 
 \begin{figure}[!ht]
     \centering
-    \begin{subfigure}{.3\textwidth}
+    \begin{subfigure}{.28\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline01.png}
-        \caption{$9 \mu s$}
-        \label{fig:sub1}
+        \includegraphics[width=\linewidth]{Figures/pipe_flow_example_quiver.png}
+        \caption{Simulation of fluid flowing in a pipe. The top and bottom boundary conditions are set as no-slip conditions, while the left and right are set as periodic boundary conditions.}
+        \label{fig:sub11}
     \end{subfigure}%
-    \begin{subfigure}{.3\textwidth}
+    \hspace{0.04\textwidth}
+    \begin{subfigure}{.28\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline02.png}
-        \caption{$13.5 \mu s$}
-        \label{fig:sub2}
+        \includegraphics[width=\linewidth]{Figures/two_box_example_streamline.png}
+        \caption{Simulation of a fluid flowing around two boxes. Boundary conditions for all sides are set as fixed velocity conditions. The boundary conditions for the boxes are set as no-slip conditions are updated dynamically as each box is added to the environment.}
+        \label{fig:sub12}
     \end{subfigure}
-    \begin{subfigure}{.3\textwidth}
+    \hspace{0.04\textwidth}
+    \begin{subfigure}{.28\textwidth}
         \centering
-        \includegraphics[width=\linewidth]{Figures/cylinder_example_timesteps/streamline09.png}
-        \caption{$45 \mu s$}
-        \label{fig:sub3}
+        \includegraphics[width=\linewidth]{Figures/cylinder_example_streamline.png}
+        \caption{A simulation of fluid flow around a cylinder. Here the right, top, and bottom sides have no slip conditions while the left side has a fixed velocity boundary condition. The boundary conditions around the cylinder are automatically updated at simulation time.}
+        \label{fig:sub13}
     \end{subfigure}
-    \caption{Three time steps of the FD simulation of fluid flow around a a cylinder. The pressure field is shown by the shading while streamlines are shown in purple.}
+    \caption{The modular boundary conditions, customizable environment, and composable objects allows for easy simulation of complex environments with very different conditions and requirements.}
     \label{fig:fluid_flow_cylinder_ns_fdm}
 \end{figure}
 
