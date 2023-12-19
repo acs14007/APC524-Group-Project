@@ -67,7 +67,7 @@ I also implemented a ``Cylinder'' Class that also inherits from the abstract ``O
 These can be combined to make complex simulations with multiple objects interacting with each other and the fluid flow.
 
 \subsubsection{Example Simulation Setup}
-\begin{verbatim}
+\begin{lstlisting}[language = Python]
 from navier_stokes_fdm import Environment
 from navier_stokes_fdm import Rectangle
 import navier_stokes_fdm.boundary_condition as bc
@@ -102,7 +102,7 @@ a = Environment(
 
 a.run_many_steps(480)
 a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png")
-\end{verbatim}
+\end{lstlisting}
 
 \begin{figure}[h]
     \centering
