@@ -2,15 +2,6 @@
 
 I implemented the initial finite-element Navier-Stokes (NS) solver \cite{Batchelor2000} to simulate two-dimensional cylinder wake flow -- the focus of which was on incompressible, viscous fluid flow \cite{Pope2000}. The inclusion of viscosity in the model and the application of no-slip boundary conditions \cite{White2006} is required to capture the nuanced behavior of real fluid flows often found in engineering applications. The presence of a square obstacle in the flow field allows us to investigate complex phenomena like separation, and vortex-shedding and wake formation \cite{Zdravkovich1997,Anderson1995}.
 
-\subsubsection{Navier-Stokes Equations}
-The NS equations, governing the fluid flow, are expressed as:
-\begin{align}
-    \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} + v \frac{\partial u}{\partial y} &= -\frac{1}{\rho} \frac{\partial p}{\partial x} + \nu \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right), \\
-    \frac{\partial v}{\partial t} + u \frac{\partial v}{\partial x} + v \frac{\partial v}{\partial y} &= -\frac{1}{\rho} \frac{\partial p}{\partial y} + \nu \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right), \\
-    \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} &= 0,
-\end{align}
-where \( u \) and \( v \) are the fluid velocities in the x and y directions, respectively, \( p \) is the pressure, \( \rho \) is the fluid density, and \( \nu \) is the kinematic viscosity.
-
 \subsubsection{Implementation}
 The solver was implemented in Python, utilizing NumPy for efficient array computations. It initializes the velocity and pressure fields, and defines a cylinder obstruction in the flow. The update functions for velocity and pressure discretize the NS equations using finite difference methods. The solver handles complex phenomena like vortex shedding, illustrated in the simulations around the cylinder. Regular plotting intervals offer visual insights into the evolving fluid dynamics.
 
@@ -54,11 +45,11 @@ This also allows for a concise comparison of the speed of the finite element NS 
 Subsequently, I executed the simulation with cProfile enabled, capturing essential performance metrics. This was critical in understanding how different segments of my code impacted the overall runtime, providing a clear overview of the simulation's performance landscape. For the analysis of the profiling data, I utilized SnakeViz \cite{snakeviz}, a sophisticated graphical viewer designed for Python profiling data. This analysis was integral in visualizing and decoding performance bottlenecks, highlighting areas where optimization was necessary (Fig. \ref{fig:snake}). The benefits of this process were multifaceted. Firstly, profiling pinpointed specific functions or methods that consumed substantial time, guiding me towards target areas for optimization. Moreover, it facilitated efficient allocation of computational resources by illuminating the most resource-intensive parts of the code, thereby aiding in more informed decisions regarding optimization.
 \\
 
-\begin{wrapfigure}{r}{0.45\textwidth}
+\begin{figure}[h]
     \centering
-    \includegraphics[width=0.45\textwidth]{Figures/final_report/Snake_prof.png}
+    \includegraphics[width=\textwidth]{Figures/final_report/Snake_prof.png}
     \caption{Sophisticated graphical viewer designed for Python profiling data using SnakeViz.}
     \label{fig:snake}
-\end{wrapfigure}
+\end{figure}
 
 With these insights, I embarked on optimizing and refining the code. By adjusting algorithms and refactoring, I was able to significantly improve the application’s performance. This process not only enhanced the efficiency of the code but also its quality and scalability, elevating the overall standard of the software. Additionally, these optimizations led to time and cost efficiencies, particularly beneficial in environments where computational resources are charged. The data-driven approach provided by profiling enabled me to make informed decisions, concentrating my efforts on modifications that offered substantial performance improvements.

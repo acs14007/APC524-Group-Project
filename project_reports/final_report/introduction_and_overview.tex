@@ -5,6 +5,15 @@ The Navier–Stokes (NS) equations describe fluid dynamics and have been applied
 
 Recent advances in physics informed neural networks (PINNs) allow for high resolution and physically consistent approximations of the NS equations \cite{jin2021nsfnets} \cite{baymani2015artificial} \cite{eivazi2022physics}. PINNs are supervised neural networks that take advantage of their capabilities as universal function approximators to incorporate model equations, such as partial differential equations, directly into the loss function during training \cite{Raissi2019}. This new loss term, known as the equation loss, is derived from the underlying physical system of equations accompanying the traditional mean square loss.
 
+\section{The Equations}
+The NS equations, governing the fluid flow, are expressed as:
+\begin{align}
+    \frac{\partial u}{\partial t} + u \frac{\partial u}{\partial x} + v \frac{\partial u}{\partial y} &= -\frac{1}{\rho} \frac{\partial p}{\partial x} + \nu \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right), \\
+    \frac{\partial v}{\partial t} + u \frac{\partial v}{\partial x} + v \frac{\partial v}{\partial y} &= -\frac{1}{\rho} \frac{\partial p}{\partial y} + \nu \left( \frac{\partial^2 v}{\partial x^2} + \frac{\partial^2 v}{\partial y^2} \right), \\
+    \frac{\partial u}{\partial x} + \frac{\partial v}{\partial y} &= 0,
+\end{align}
+where \( u \) and \( v \) are the fluid velocities in the x and y directions, respectively, \( p \) is the pressure, \( \rho \) is the fluid density, and \( \nu \) is the kinematic viscosity.
+
 \section{Overview}
 This project contains the following features:
 
