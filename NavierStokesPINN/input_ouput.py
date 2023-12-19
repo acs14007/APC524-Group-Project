@@ -1,7 +1,6 @@
 import scipy.io
 import os
 from scipy.interpolate import griddata
-from PINN import PhysicsInformedNN
 import numpy as np
 import tensorflow as tf
 
@@ -48,6 +47,8 @@ class NavierStokesPINN_IO():
         self.v = self.VV.flatten()[:,None] # NT x 1
         self.p =self.PP.flatten()[:,None] # NT x 1
 
+        self.parsed = True
+
     def select_training_data(self, N_train: int):
         if not self.parsed:
             raise Exception("Data file not parsed yet! Run parse_data_file() first.")
@@ -59,11 +60,11 @@ class NavierStokesPINN_IO():
         self.training_data['u_train'] = self.u[idx,:]
         self.training_data['v_train'] = self.v[idx,:]
 
-    def select_test_data(self, time_snap: float):
+    def select_test_data(self, time_snap_idx: int):
         if not self.parsed:
             raise Exception("Data file not parsed yet! Run parse_data_file() first.")
         
-        snap = np.array([time_snap])
+        snap = np.array([time_snap_idx])
         self.x_star = self.X_star[:,0:1]
         self.y_star = self.X_star[:,1:2]
         self.t_star = self.TT[:,snap]
@@ -89,6 +90,10 @@ class NavierStokesPINN_IO():
         self.predict_data['u_pred'] = u_pred.numpy()
         self.predict_data['v_pred'] = v_pred.numpy()
         self.predict_data['p_pred'] = p_pred.numpy()
+        self.predict_data['u_exact'] = self.u_star
+        self.predict_data['v_exact'] = self.v_star
+        self.predict_data['p_exact'] = self.p_star
+    
 
         if predict_filename is not None:
             np.savez(os.path.join(self.output_path, predict_filename), **self.predict_data)
