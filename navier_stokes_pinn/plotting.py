@@ -79,13 +79,13 @@ class NavierStokesPINN_Plotter():
             v_pred = plot_data['v_pred_%d' %time_snap_idx]
             p_pred = plot_data['p_pred_%d' %time_snap_idx]
 
-            # u_exact = plot_data['u_exact_%d' %time_snap_idx]
-            # v_exact = plot_data['v_exact_%d' %time_snap_idx]
-            # p_exact = plot_data['p_exact_%d' %time_snap_idx]
+            u_exact = plot_data['u_exact_%d' %time_snap_idx]
+            v_exact = plot_data['v_exact_%d' %time_snap_idx]
+            p_exact = plot_data['p_exact_%d' %time_snap_idx]
 
-            u_exact = self.IO_class.u_star
-            v_exact = self.IO_class.v_star
-            p_exact = self.IO_class.p_star
+            # u_exact = self.IO_class.u_star
+            # v_exact = self.IO_class.v_star
+            # p_exact = self.IO_class.p_star
 
             UU_star = griddata(X_star, u_pred.flatten(), (X, Y), method='cubic')    
             VV_star = griddata(X_star, v_pred.flatten(), (X, Y), method='cubic')
