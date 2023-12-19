@@ -15,8 +15,8 @@ tf.random.set_seed(1234)
 def test_PINN_IO_initialization():
     IO_manager = NavierStokesPINN_IO(input_path="navier_stokes_pinn/data", output_path="navier_stokes_pinn/output")
     
-    assert IO_manager.input_path == "../navier_stokes_pinn/data", "Input path should be ../navier_stokes_pinn/data"
-    assert IO_manager.output_path == "../navier_stokes_pinn/output", "Output path should be ../navier_stokes_pinn/output"
+    assert IO_manager.input_path == "navier_stokes_pinn/data", "Input path should be ../navier_stokes_pinn/data"
+    assert IO_manager.output_path == "navier_stokes_pinn/output", "Output path should be ../navier_stokes_pinn/output"
 
     assert IO_manager.training_data == dict(), "Training data should be an empty dictionary"
     assert IO_manager.test_data == dict(), "Test data should be an empty dictionary"
@@ -27,7 +27,7 @@ def test_PINN_IO_initialization():
     assert IO_manager.test_data_prepared == False, "Test data should not be prepared yet"
 
 def test_PINN_IO_parse_data_file():
-    IO_manager = NavierStokesPINN_IO(input_path="../navier_stokes_pinn/data", output_path="../navier_stokes_pinn/output")
+    IO_manager = NavierStokesPINN_IO(input_path="navier_stokes_pinn/data", output_path="navier_stokes_pinn/output")
     IO_manager.parse_data_file(filename="cylinder_nektar_wake.mat")
 
     # Checking the data input is correct
@@ -47,7 +47,7 @@ def test_PINN_IO_parse_data_file():
     assert IO_manager.parsed == True, "Data should be parsed now"
 
 def test_pinn_initialization():
-    IO_manager = NavierStokesPINN_IO(input_path="../navier_stokes_pinn/data", output_path="../navier_stokes_pinn/output")
+    IO_manager = NavierStokesPINN_IO(input_path="navier_stokes_pinn/data", output_path="navier_stokes_pinn/output")
     IO_manager.parse_data_file(filename="cylinder_nektar_wake.mat")
     IO_manager.select_training_data(N_train=50)
 
