@@ -3,13 +3,11 @@ try:
     import sys
     import tensorflow as tf
     tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
-    import tensorflow_probability as tfp
     import numpy as np
     import matplotlib.pyplot as plt
     import scipy.io
     from scipy.interpolate import griddata
     import time
-    from itertools import product, combinations
 except:
     print("One or more packages are missing...")
 
