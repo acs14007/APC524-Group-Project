@@ -1,8 +1,11 @@
+import sys
+sys.path.insert(0, '.')
 import numpy as np
 import tensorflow as tf
 import scipy.io
 from scipy.interpolate import griddata
 
+from navier_stokes_fdm.environment import Environment
 from navier_stokes_pinn.PINN import PhysicsInformedNN
 from navier_stokes_pinn.input_output import NavierStokesPINN_IO
 
