@@ -13,7 +13,7 @@ np.random.seed(1234)
 tf.random.set_seed(1234)
 
 def test_PINN_IO_initialization():
-    IO_manager = NavierStokesPINN_IO(input_path="../navier_stokes_pinn/data", output_path="../navier_stokes_pinn/output")
+    IO_manager = NavierStokesPINN_IO(input_path="navier_stokes_pinn/data", output_path="navier_stokes_pinn/output")
     
     assert IO_manager.input_path == "../navier_stokes_pinn/data", "Input path should be ../navier_stokes_pinn/data"
     assert IO_manager.output_path == "../navier_stokes_pinn/output", "Output path should be ../navier_stokes_pinn/output"
