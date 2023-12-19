@@ -17,6 +17,9 @@ class NavierStokesPINN_IO():
         self.predict_data = dict()
         self.multi_predict_data = dict()
 
+        self.parsed = False
+        self.test_data_prepared = False
+
     def parse_data_file(self, filename: str):
         self.data = scipy.io.loadmat(os.path.join(self.input_path, filename))
 
@@ -46,7 +49,10 @@ class NavierStokesPINN_IO():
         self.p =self.PP.flatten()[:,None] # NT x 1
 
     def select_training_data(self, N_train: int):
-        idx = np.random.choice(self.X_star.shape[0], N_train, replace=False)
+        if not self.parsed:
+            raise Exception("Data file not parsed yet! Run parse_data_file() first.")
+        
+        idx = np.random.choice(self.N*self.T, N_train, replace=False)
         self.training_data['x_train'] = self.x[idx,:]
         self.training_data['y_train'] = self.y[idx,:]
         self.training_data['t_train'] = self.t[idx,:]
@@ -54,6 +60,9 @@ class NavierStokesPINN_IO():
         self.training_data['v_train'] = self.v[idx,:]
 
     def select_test_data(self, time_snap: float):
+        if not self.parsed:
+            raise Exception("Data file not parsed yet! Run parse_data_file() first.")
+        
         snap = np.array([time_snap])
         self.x_star = self.X_star[:,0:1]
         self.y_star = self.X_star[:,1:2]
@@ -67,22 +76,12 @@ class NavierStokesPINN_IO():
         self.test_data['y_test'] = self.y_star
         self.test_data['t_test'] = self.t_star
 
-    def save_model_weights_biases(self, trained_model, weights_filename: str, biases_filename: str):
-        weights_as_np = [weight.numpy() for weight in trained_model.weights]
-        biases_as_np = [bias.numpy() for bias in trained_model.biases]
-
-        np.savez(os.path.join(self.output_path, weights_filename), *weights_as_np)
-        np.savez(os.path.join(self.output_path, biases_filename), *biases_as_np) 
-
-    def load_model_weights_biases(self, weights_filename: str, biases_filename: str):
-        weights_files = np.load(os.path.join(self.output_path, weights_filename), allow_pickle=True)
-        biases_files = np.load(os.path.join(self.output_path, biases_filename), allow_pickle=True) 
-        weights = [np.array(weights_files[file]) for file in weights_files.files]
-        biases = [np.array(biases_files[file]) for file in biases_files.files]
-
-        return weights, biases
+        self.test_data_prepared = True
 
     def save_predict_data(self, trained_model, predict_filename: str = None):
+        if not self.test_data_prepared:
+            raise Exception("Test data has not been prepared. Run select_data_file() first.")
+               
         x_test = tf.cast(self.test_data['x_test'], dtype=tf.float32)
         y_test = tf.cast(self.test_data['y_test'], dtype=tf.float32)
         t_test = tf.cast(self.test_data['t_test'], dtype=tf.float32)
@@ -95,7 +94,9 @@ class NavierStokesPINN_IO():
             np.savez(os.path.join(self.output_path, predict_filename), **self.predict_data)
 
     def save_multi_predict_data(self, trained_model, time_snap_arr, predict_filename: str):
-
+        if not self.parsed:
+            raise Exception("Data file not parsed yet! Run parse_data_file() first.")
+        
         for i in time_snap_arr:
             snap_num = i
             snap = np.array([snap_num])
