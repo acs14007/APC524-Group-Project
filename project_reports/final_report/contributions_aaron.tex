@@ -121,7 +121,7 @@ Each test creates an environment, applies a boundary condition, and checks to se
 To make sure that changes to the code do not break functionality, I implemented automated testing using GitHub Actions.
 I wrote a GitHub Action that runs the ``pytest'' unit tests on every pull request and commit to the repository.
 
-\section{Simulation of a fluid flow around a cylinder}
+\subsection{Simulation of a fluid flow around a cylinder}
 
 To simulate the fluid flow around a cylinder I initialized a simulation environment of $6cm$ by $4cm$ with a $5mm$ cylinder. I set $\rho$ to be $0.6125 \frac{kg}{m^3}$ and $\nu$ to be $3 * 10^{-5} \frac{m^2}{s}$. These values are physically plausible for air. The left side boundary condition was set to a fixed velocity of $1 \frac{m}{s}$, and the top, right, and bottom boundaries were set as free slip conditions. The $dt$ was set to $0.15 \mu s$, and each step was a total of $30$ time steps, or $4.5 \mu s$. Every $4.5 \mu s$ I generated and saved the streamline plot for analysis. Three selected frames are shown in Figure \ref{fig:fluid_flow_cylinder_ns_fdm}.
 

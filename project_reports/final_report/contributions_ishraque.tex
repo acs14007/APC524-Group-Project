@@ -1,0 +1,28 @@
+\subsection{Navier-Stokes Physics Informed Neural Network solver to simulate two-dimensional cylinder wake flow}
+
+I implemented a physics informed neural network that can train on limited simulation data and approximate the physical evolution of fluid flow described by the NS equations. My PINN model is based on the same principles as the one described in Raissi et al.\cite{Raissi2019}, where the NS equations are encoded into the equations loss term. If we consider the non-dimensional NS equations below:
+\begin{align}
+    u_{t} + (uu_{x} = vu_{y}) &= -p_{x} + \frac{1}{Re} (u_{xx} + u_{yy}) \\
+    v_{t} + (uv_{x} = vv_{y}) &= -p_{y} + \frac{1}{Re} (v_{xx} + v_{yy})
+\end{align} 
+
+\noindent where $Re$ is the Reynolds number, we can formulate two equation loss functions for the PINN.
+\begin{align}
+    f &:= u_{t} + (uu_{x} = vu_{y}) + p_{x} - \frac{1}{Re} (u_{xx} + u_{yy}) \\
+    g &:= v_{t} + (uv_{x} = vv_{y}) +p_{y} - \frac{1}{Re} (v_{xx} + v_{yy})
+\end{align} 
+
+\noindent Combining these equation loss functions with the data loss results in the following mean-squared error term:
+\begin{align}
+    MSE := \frac{1}{N} \Sigma^{N}_{i = 1} (|u(t^{i}, x^{i}, y^{i}) - u^{i}|^2 +  |v(t^{i}, x^{i}, y^{i}) - v^{i}|^2) + \frac{1}{N} \Sigma^{N}_{i = 1} (|f(t^{i}, x^{i}, y^{i})|^2 + |g(t^{i}, x^{i}, y^{i})|^2)
+\end{align}
+
+\noindent The first term in equation (11) minimizes data loss from the model approximation, while the second term minimizes equation loss, since $f$ and $g$ are supposed to be zero according to the NS equations.\\
+
+I implemented the PINN using the NumPy and Tensorflow2 libraries in python. Implementation with the Tensorflow2 library makes the model significantly more readable and modular. Additionally,  I structured the model code following object-oriented design principles to make the model more user friendly.
+
+\subsubsection{PINN Training and Testing Data}
+For this initial PINN model implementation, I decided to use the high quality cylinder wake-flow simulation data from Raissi et al. \cite{Raissi2019}, which was acquired by evolving the domain described in Figure \ref{fig: PINN Domain}
+
+
+
