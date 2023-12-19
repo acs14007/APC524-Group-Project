@@ -1,17 +1,48 @@
-# APC524-Group-Project
+# APC524: Implementing a Navier-Stokes Solver and Physics Informed Neural
+Network for Simulating Two-Dimensional Fluid Flow Around a Cylinder
 
-## Implementing Navier-Stokes Solver and Physics Informed Neural Network for Simulating Two-Dimensional Fluid Flow Around a Cylinder
-### Fairuz Ishraque, Joseph Lockwood, and Aaron Spaulding
+* An implementation of a modular Navier-Stokes solver using the Finite Difference Method.
+* A Physics Informed Neural Network that approximates a Navier-Stokes solver.
+*  Unit tests and automated testing 
 
-Cylinder wake flow is an incredibly relevant problem in computational fluid dynamics that demonstrates key phenomena such as boundary layer separation and vortex shedding of fluid flowing around a blunt object. This problem can be approached by solving the **Navier-Stokes (NS) equation**. 
+## Example Simulation Result
+![Example Plot](Figures/cylinder_example_timesteps/streamline05.png)
 
-In this project we propose to (1) develop an implementation of a two-dimensional NS solver to simulate the cylinder wake flow and (2) train a physics-informed neural network to move forward in time using the first time-steps of the simulation.
+## Example Simulation Code
+```python
+from navier_stokes_fdm import Environment
+from navier_stokes_fdm import Rectangle
+import navier_stokes_fdm.boundary_condition as bc
 
-This project contains the following key pieces:
 
-* An implementation of a NS solver to simulate the two-dimensional cylinder wake flow.
-* Train and implement a PINN approximating a solution of the two-dimensional cylinder wake flow.
-* A comparison of the speed and accuracy of each method.
-* Implementation of version control to document individual contribution, track project progress, and organize source code versions.
-* Unit tests for each key function as well as detailed documentation for each file.
-* Continuous testing using GitHub Actions.
+U = 1  # m/s
+dimension = 0.005
+
+boundary_conditions = [
+    bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.LeftSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+]
+
+
+x1, y1 = 0.0125, (0.04 / 2) - (dimension / 2)
+objects = [Rectangle(x1, y1, x1 + dimension, y1 + dimension)]
+
+
+a = Environment(
+    F=(1.0, 0.0),
+    len_x=0.06,
+    len_y=0.04,
+    dt=0.00000015,
+    dx=0.0001,
+    boundary_conditions=boundary_conditions,
+    objects=objects,
+    rho=0.6125  # kg/m³
+    nu=3e-5  # m²/s
+)
+
+a.run_many_steps(480)
+a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png")
+
+```
