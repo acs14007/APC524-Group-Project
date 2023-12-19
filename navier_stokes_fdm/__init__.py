@@ -6,10 +6,14 @@ from navier_stokes_fdm.boundary_condition import LeftSideFixedVelocityBoundaryCo
 from navier_stokes_fdm.boundary_condition import RightSideFixedVelocityBoundaryCondition
 from navier_stokes_fdm.boundary_condition import TopSideFixedVelocityBoundaryCondition
 from navier_stokes_fdm.boundary_condition import BottomSideFixedVelocityBoundaryCondition
+from navier_stokes_fdm.boundary_condition import TopSideFreeSlipBoundaryCondition
+from navier_stokes_fdm.boundary_condition import BottomSideFreeSlipBoundaryCondition
+from navier_stokes_fdm.boundary_condition import RightSideFreeSlipBoundaryCondition
 from navier_stokes_fdm.boundary_condition import LeftSidePeriodicBoundaryCondition
 from navier_stokes_fdm.boundary_condition import RightSidePeriodicBoundaryCondition
 
 from navier_stokes_fdm.object import Rectangle
+from navier_stokes_fdm.object import Circle
 
 __all__ = [
     "Environment",
@@ -19,7 +23,11 @@ __all__ = [
     "RightSideFixedVelocityBoundaryCondition",
     "TopSideFixedVelocityBoundaryCondition",
     "BottomSideFixedVelocityBoundaryCondition",
+    "TopSideFreeSlipBoundaryCondition",
+    "BottomSideFreeSlipBoundaryCondition",
+    "RightSideFreeSlipBoundaryCondition",
     "LeftSidePeriodicBoundaryCondition",
     "RightSidePeriodicBoundaryCondition",
-    "Rectangle"
+    "Rectangle",
+    "Circle"
 ]

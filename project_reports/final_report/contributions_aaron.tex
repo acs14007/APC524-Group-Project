@@ -12,33 +12,87 @@ This solver type enables efficient quick simulations at the cost of using fixed 
 
 
 \subsubsection{Environment Setup}
-I designed the solver environment to be flexible and modular.
+I designed the solver environment to be flexible and modular so users could easily define different size and resolution environments.
 The environment has a customizable grid, with adjustable resolution, time step, and fluid properties.
-This was implemented as a python ``Environment'' Class inside a module allowing for quick setup of very different environments.
+This was implemented as a python ``Environment'' Class inside a module.
 The ``Environment'' class also includes automatic plotting routines that enable quick visualization of the fluid flow.
 
 \subsubsection{Boundary Conditions}
 To extend this modularity I abstracted different types of boundary conditions common in fluid simulations.
+I implemented four different boundary conditions for each edge of the environment.
+Each of these boundary conditions is fully modular and can be mixed and matched for each simulation environment.
 
 \begin{enumerate}
     \item \textbf{No-Slip Boundary Condition}: This boundary condition is used to simulate a solid boundary where fluid flows are zero in both the parallel and perpendicular directions to the boundary. This is seen on the inside of pipes, along buildings and objects, and against the ground.
     \item \textbf{Fixed Velocity Boundary Condition}: This boundary condition is used to simulate a boundary where fluid flows are fixed in the parallel direction to the boundary. This could be used to simulate a fan, an inlent valve, or the top of a boundary layer where the fluid is moving at a constant velocity.
     \item \textbf{Periodic Boundary Condition}: This boundary condition is used to simulate a boundary where fluid flows are periodic in the parallel direction to the boundary. This can be used to simulate repeating simulations such as a section of pipe where the input and output ends are similar.
+    \item \textbf{Free Slip Boundary Condition}: This boundary condition is used to simulate a boundary where fluid flows are zero in the perpendicular direction to the boundary. This can be used to simulate a boundary where the fluid is free to move in the parallel direction but cannot move in the perpendicular direction.
 \end{enumerate}
 
-Each of these boundary conditions is implemented as a python ``Boundary'' Class inside a module allowing for quick setup of very different simulations.
 
 \subsubsection{Objects in the Environment}
 Objects inside environments also interact with fluid flows and affect the velocity and pressure fields.
-To enable modular simulations, I also implemented an ''Object'' Class that can be used to place arbitrary objects in the environment.
+To enable modular simulations, I also implemented an ``Object'' Class that can be used to place arbitrary objects in the environment.
 I implemented a ``Rectangle'' Class that inherits from the abstract ``Object'' Class that automatically manages boundary conditions of the added object and updates the velocity and pressure fields during simulation.
+I also implemented a ``Cylinder'' Class that also inherits from the abstract ``Object'' Class.
 
-This class allows for multiple objects to be added and simulated with automatic updating of boundary conditions.
+These can be combined to make complex simulations with multiple objects interacting with each other and the fluid flow.
 
-% TODO: Input python code formatted nicely with latex
+\subsubsection{Example Simulation Setup}
+\begin{verbatim}
+from navier_stokes_fdm import Environment
+from navier_stokes_fdm import Rectangle
+import navier_stokes_fdm.boundary_condition as bc
+
+
+U = 1  # m/s
+dimension = 0.005
+
+boundary_conditions = [
+    bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.LeftSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+    bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
+]
+
+
+x1, y1 = 0.0125, (0.04 / 2) - (dimension / 2)
+objects = [Rectangle(x1, y1, x1 + dimension, y1 + dimension)]
+
+
+a = Environment(
+    F=(1.0, 0.0),
+    len_x=0.06,
+    len_y=0.04,
+    dt=0.00000015,
+    dx=0.0001,
+    boundary_conditions=boundary_conditions,
+    objects=objects,
+    rho=0.6125  # kg/m³
+    nu=3e-5  # m²/s
+)
+
+a.run_many_steps(480)
+a.plot_streamline_plot(title="", filepath="../Figures/box_example_streamline.png")
+\end{verbatim}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\linewidth]{Figures/box_example_streamline.png}
+    \caption{Example streamline plot of a fluid flow around a box.}
+    \label{fig:box_example_streamline}
+\end{figure}
+
+
 
 \subsection{Unit testing}
-% TODO: Write this
+To further ensure code functionality I implemented unit tests using ``pytest'' for the boundary conditions.
+Each test creates an environment, applies a boundary condition, and checks to see if the boundary condition has been applied correctly.
 
 \subsubsection{Automated Unit Testing with GitHub Actions}
-% TODO: Write this
+To make sure that changes to the code do not break functionality, I implemented automated testing using GitHub Actions.
+I wrote a GitHub Action that runs the ``pytest'' unit tests on every pull request and commit to the repository.
+
+\section{Simulation of a fluid flow around a cylinder}
+I 
+
