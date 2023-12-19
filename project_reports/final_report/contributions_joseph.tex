@@ -1,4 +1,4 @@
-\subsection{An implementation of a NS solver to simulate the two-dimensional cylinder wake flow.}
+\subsection{A derivation and implementation of an NS solver to simulate the two-dimensional cylinder wake flow.}
 
 I implemented the initial finite-element Navier-Stokes (NS) solver \cite{Batchelor2000} to simulate two-dimensional cylinder wake flow -- the focus of which was on incompressible, viscous fluid flow \cite{Pope2000}. The inclusion of viscosity in the model and the application of no-slip boundary conditions \cite{White2006} is required to capture the nuanced behavior of real fluid flows often found in engineering applications. The presence of a square obstacle in the flow field allows us to investigate complex phenomena like separation, and vortex-shedding and wake formation \cite{Zdravkovich1997,Anderson1995}.
 
@@ -12,8 +12,7 @@ The NS equations, governing the fluid flow, are expressed as:
 where \( u \) and \( v \) are the fluid velocities in the x and y directions, respectively, \( p \) is the pressure, \( \rho \) is the fluid density, and \( \nu \) is the kinematic viscosity.
 
 \subsubsection{Implementation}
-
-The solver was implemented in Python, utilizing NumPy for efficient array computations. It initializes the velocity and pressure fields, and defines a rectangular obstruction in the flow. The update functions for velocity and pressure discretize the NS equations using finite difference methods. The solver handles complex phenomena like vortex shedding, illustrated in the simulations around the cylinder. Regular plotting intervals offer visual insights into the evolving fluid dynamics.
+The solver was implemented in Python, utilizing NumPy for efficient array computations. It initializes the velocity and pressure fields, and defines a cylinder obstruction in the flow. The update functions for velocity and pressure discretize the NS equations using finite difference methods. The solver handles complex phenomena like vortex shedding, illustrated in the simulations around the cylinder. Regular plotting intervals offer visual insights into the evolving fluid dynamics.
 
 \subsubsection{Equations for Velocity and Pressure Update}
 The velocity and pressure updates incorporate advection, pressure gradients, and diffusion:
@@ -35,7 +34,6 @@ The pressure update, derived from the Poisson equation to ensure incompressibili
 The simulation begins by initializing the velocity fields (representing fluid velocity in the x and y directions) and the pressure field. These initial conditions set the starting state of the fluid flow. The solver then discretizes the Navier-Stokes equations, which govern fluid motion, using finite difference methods in both time and space. To evolve the fluid dynamics over time, the solver employs update equations for velocity and pressure. 
 
 \subsection{Unit testing}
-
 A comprehensive suite of unit tests has been implemented to ensure the robustness and reliability of the code. These tests encompass various aspects of the project, including the functionality of classes and methods, and the integrity of the environment setup. The testing approach was mainly implemented to test the reliability of each step in the solution process. The tests were designed to leverage the modular structure of the solver, enabling the examination of various functional components and critical variables within each of the utilized solver files. Consequently, a multitude of unit tests were developed to confirm the correct functioning of these distinct code segments.
 \\
 
@@ -49,7 +47,8 @@ In line with the overarching principles of testing, the tests are designed to be
 
 \subsection{Speed and efficiency}
 
-I integrated Python's cProfile \cite{cprofile} module as a step in identifying performance bottlenecks and speed of runs. This also allows for a concise comparison of the speed of the finite element NS solver against the PINN approximation. cProfile provides a detailed report on call frequency and duration of the code, which were pivotal in analyzing the efficiency. This integration was a key part of the process, allowing me to gather comprehensive performance data.
+I integrated Python's cProfile \cite{cprofile} module as a step in identifying performance bottlenecks and speed of runs.
+This also allows for a concise comparison of the speed of the finite element NS solver against the PINN approximation. cProfile provides a detailed report on call frequency and duration of the code, which were pivotal in analyzing the efficiency. This integration was a key part of the process, allowing me to gather comprehensive performance data.
 \\
 
 Subsequently, I executed the simulation with cProfile enabled, capturing essential performance metrics. This was critical in understanding how different segments of my code impacted the overall runtime, providing a clear overview of the simulation's performance landscape. For the analysis of the profiling data, I utilized SnakeViz \cite{snakeviz}, a sophisticated graphical viewer designed for Python profiling data. This analysis was integral in visualizing and decoding performance bottlenecks, highlighting areas where optimization was necessary (Fig. \ref{fig:snake}). The benefits of this process were multifaceted. Firstly, profiling pinpointed specific functions or methods that consumed substantial time, guiding me towards target areas for optimization. Moreover, it facilitated efficient allocation of computational resources by illuminating the most resource-intensive parts of the code, thereby aiding in more informed decisions regarding optimization.
