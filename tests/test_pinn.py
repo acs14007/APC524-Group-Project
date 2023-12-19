@@ -37,16 +37,16 @@ def test_PINN_IO_parse_data_file():
     assert IO_manager.X_star.shape == (5000, 2), "X_star should be a 2D array with shape (5000, 2)"
 
     # Checking the parse result is correct
-    assert IO_manager.x.shape == (100000, 1), "x should be (100000, 1)"
-    assert IO_manager.y.shape == (100000, 1), "y should be (100000, 1)"
-    assert IO_manager.t.shape == (100000, 1), "t should be (100000, 1)"
-    assert IO_manager.u.shape == (100000, 1), "u should be (100000, 1)"
-    assert IO_manager.v.shape == (100000, 1), "v should be (100000, 1)"
-    assert IO_manager.p.shape == (100000, 1), "p should be (100000, 1)"
+    assert IO_manager.x.shape == (1000000, 1), "x should be (1000000, 1)"
+    assert IO_manager.y.shape == (1000000, 1), "y should be (1000000, 1)"
+    assert IO_manager.t.shape == (1000000, 1), "t should be (1000000, 1)"
+    assert IO_manager.u.shape == (1000000, 1), "u should be (1000000, 1)"
+    assert IO_manager.v.shape == (1000000, 1), "v should be (1000000, 1)"
+    assert IO_manager.p.shape == (1000000, 1), "p should be (1000000, 1)"
 
     assert IO_manager.parsed == True, "Data should be parsed now"
 
-def test_pinn_initialization():
+def test_PINN_initialization():
     IO_manager = NavierStokesPINN_IO(input_path="navier_stokes_pinn/data", output_path="navier_stokes_pinn/output")
     IO_manager.parse_data_file(filename="cylinder_nektar_wake.mat")
     IO_manager.select_training_data(N_train=50)
