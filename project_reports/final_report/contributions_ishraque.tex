@@ -91,6 +91,41 @@ Plot_manager.plot_compare_predictions('example_prediction_100.npz', time_snapsho
 \end{lstlisting}
 
 \subsection{Unit Testing}
+I used unit testing to verify proper initialization and functionality of the PINN model. I also wrote unit tests to verify proper implementation of each method of the IO Handler class. Almost every aspect of the PINN codebase short of training the model was covered through the testing. I chose not to implement a test to verify the \texttt{train} method for the PINN since it would be quite time consuming when running automatic testing through Github Actions.
+
+\subsection{Adding model run saver to the FD solver in ``Environment'' class}
+I added the functionality to save the entire model run for the finite difference NS solver implemented by Aaron. If the saver is set to True, the NS solver saves all relevant data for each timestep of the model evolution into a .mat file. This capability creates a path to connect the results of the NS finite difference solver and the implemented PINN model.
+
+\subsection{PINN Prediction Results}
+After training on the 5000 data points, I employed PINN model to reconstruct the $u$, $v$, and $p$ for several timesteps provided in the test data. The results of the model inference for the timestep 100 are show in Figure \ref{fig:PINN Results}
+
+\begin{figure}[!ht]
+    \centering
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/u_100.png}
+        \caption{$ u $}
+        \label{fig:result u}
+    \end{subfigure}%
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/v_100.png}
+        \caption{$ v $}
+        \label{fig:result v}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{Figures/p_100.png}
+        \caption{$w$}
+        \label{fig:result p}
+    \end{subfigure}
+    \caption{The PINN predictions compared to ground truth values for the time step 100}
+    \label{fig:PINN Results}
+\end{figure}
+
+
+\noindent Note that the predictions results for $u$ and $v$ are very accurate (with mean errors 0.06 and 0.6 respectively), which can be expected, since a small amount of data from these arrays was used for the PINN training. However, looking at the pressure prediction in Figure \ref{fig:result p}, it is clear that, while the pressure field is represented well qualitatively, all the values are off by a constant (notice the colorbars in Figure \ref{fig:result p}). This is evident in the calculated mean error of approximately 2.6. Further pressure predictions at other timesteps are visualized in a .gif format here (\url{https://github.com/acs14007/APC524-Group-Project.git}).This is quite impressive, since no pressure data was used for the PINN training. Thus the pressure approximations by the model resulted from the integrated equation loss terms. The offset in the predicted pressure field can be explained by the nature of Navier-Stokes system, since the pressure is only identifiable upto a constant \cite{Raissi2019}.
+
 
 
 
