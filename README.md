@@ -6,8 +6,8 @@ Network for Simulating Two-Dimensional Fluid Flow Around a Cylinder
 *  Unit tests and automated testing 
 
 ## Final Report and Slides
-### [Final Report](project_reports/final_report/final_report.pdf)
-### [Slides](project_reports/final_report/final_slides.pdf)
+### [Final Report](project_reports/final_report/APC524_Group_Project.pdf)
+### [Slides](project_reports/final_report/APC524_Group_Project_Presentation.pdf)
 
 ## Example Simulation Result
 <img src="Figures/cylinder_example_timesteps/streamline05.png" width="600" height="400">
