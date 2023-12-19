@@ -8,10 +8,7 @@ rho_air = 1.225 / 2  # kg/m³
 nu_air = 3e-5  # m²/s
 
 boundary_conditions = [
-    # bc.TopSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
-    # bc.BottomSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
     bc.LeftSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
-    # bc.RightSideFixedVelocityBoundaryCondition(u_value=U, v_value=0),
     bc.TopSideFreeSlipBoundaryCondition(),
     bc.RightSideFreeSlipBoundaryCondition(),
     bc.BottomSideFreeSlipBoundaryCondition(),
